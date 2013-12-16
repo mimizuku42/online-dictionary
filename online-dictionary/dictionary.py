@@ -10,7 +10,9 @@ Created on 2013/12/11
 if __name__ == '__main__':
     pass
 
-class dictionary:
+
+
+class Dictionary:
     name=""
     chinese_support=False
     memory=dict()
@@ -22,13 +24,24 @@ class dictionary:
         try:
             return self.memory[word]
         except KeyError:
-            self.memory[word]=self.fetch_translation(word)
+            self.memory[word]=self.fetch_translation_from_web(word)
             return self.memory[word]
     
-    def fetch_translation(self, word):
+    def fetch_translation_from_web(self, word):
         return "oops"
-
     
+    def search(self):
+        pass
 
-# d=dictionary("Merriam-Webster", True)
-# d.translate("abc")
+
+
+class DictionaryList:
+    dictList=dict()
+    k=1
+    @classmethod
+    def insert(self, dictionary):
+        self.dictList[dictionary.name]=dictionary
+
+# 
+# d=Dictionary("Merriam-Webster", False)
+# DictionaryList.insert(d)

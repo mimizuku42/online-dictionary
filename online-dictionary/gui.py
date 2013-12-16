@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dictionary.ui'
 #
-# Created: Thu Dec 12 22:59:20 2013
+# Created: Mon Dec 16 15:50:04 2013
 #      by: PyQt5 UI code generator 5.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -31,7 +31,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.pushButton.clicked.connect(MainWindow.input_check)
+        self.lineEdit.editingFinished.connect(MainWindow.editing_finished)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
