@@ -6,6 +6,8 @@ Created on 2013/12/11
 
 @author: dacapo
 '''
+import pickle
+
 
 if __name__ == '__main__':
     pass
@@ -33,15 +35,30 @@ class Dictionary:
     def search(self):
         pass
 
-
-
 class DictionaryList:
-    dictList=dict()
-    k=1
-    @classmethod
+    filename="dictionary_cache"
+    dictList=dict()   
+    
     def insert(self, dictionary):
         self.dictList[dictionary.name]=dictionary
-
-# 
-# d=Dictionary("Merriam-Webster", False)
-# DictionaryList.insert(d)
+    
+    def search(self, word):
+        answer=dict()
+        for name, dictionary in self.dictList.items():
+            answer[name]=dictionary.translate(name)
+    
+    def load(self):
+        f = open(self.filename,'rb')
+        tmp_dict = pickle.load(f)
+        f.close()          
+    
+        self.__dict__.update(tmp_dict) 
+    
+    def save(self):
+        f = open(self.filename,'wb')
+        pickle.dump(self.__dict__,f,2)
+        f.close()
+        
+d=DictionaryList()
+d.insert(Dictionary("Merriam-Webster", False))
+print(d.search("apple"))
