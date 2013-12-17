@@ -12,7 +12,6 @@ import pickle
 
 
 
-
 class Dictionary:
     
     def __init__(self, name, chinese_support):
@@ -55,10 +54,10 @@ class DictionaryList:
         new_word=False;
         for name, dictionary in self.dictList.items():
             try:
-                answer[name]=dictionary.inner_translate(name)
+                answer[name]=dictionary.inner_translate(word)
             except KeyError:
                 new_word=True
-                answer[name]=dictionary.outer_translate(name)
+                answer[name]=dictionary.outer_translate(word)
 
         if new_word:
             self.save()

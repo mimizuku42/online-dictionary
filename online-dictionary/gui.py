@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dictionary.ui'
 #
-# Created: Mon Dec 16 15:50:04 2013
+# Created: Mon Dec 16 22:51:48 2013
 #      by: PyQt5 UI code generator 5.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,8 +19,12 @@ class Ui_MainWindow(object):
         self.pushButton.setGeometry(QtCore.QRect(470, 380, 75, 23))
         self.pushButton.setObjectName("pushButton")
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit.setGeometry(QtCore.QRect(420, 170, 113, 20))
+        self.lineEdit.setGeometry(QtCore.QRect(480, 170, 113, 20))
         self.lineEdit.setObjectName("lineEdit")
+        self.webView = QtWebKitWidgets.QWebView(self.centralwidget)
+        self.webView.setGeometry(QtCore.QRect(50, 180, 300, 200))
+        self.webView.setUrl(QtCore.QUrl("about:blank"))
+        self.webView.setObjectName("webView")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
@@ -39,3 +43,4 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton.setText(_translate("MainWindow", "check"))
 
+from PyQt5 import QtWebKitWidgets
