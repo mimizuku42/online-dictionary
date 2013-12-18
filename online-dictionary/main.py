@@ -23,12 +23,17 @@ class Searcher(QObject):
         self.dictionary=dictionary
         self.word=word
     def run(self):
-        answer=self.dictionary.search(self.word)
-        self.update.emit(self.dictionary.name, answer)
+        try:
+            answer=self.dictionary.search(self.word)
+            self.update.emit(self.dictionary.name, answer)
+            print("success"+str(self))
+        except AttributeError:
+            print("fail"+str(self))
+        
 
 
-class MyMainWindow(QMainWindow, Ui_MainWindow):
-
+class MyMainWindow(QMainWindow, Ui_MainWindow, QObject):
+    signal=pyqtSignal(str)
     
     def __init__(self, parent=None):
         super(MyMainWindow, self).__init__()
@@ -48,7 +53,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.listWidget.setItemWidget(item, item_widget)
         self.previous_word=""
         
-        
+        self.searchThreads=[]
+        for dictionary in self.allDict.dictList:
+            self.searchThreads.append(QThread())
         
 
         
@@ -68,21 +75,20 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.previous_word=word
         
-        self.workers=[]
-        self.workerThreads=[]
-        
+        self.searchers=[]
+
         for dictionary in self.allDict.dictList.values():
-            self.workers.append(Searcher(dictionary, word))
-            self.workerThreads.append(QThread())
+            self.searchers.append(Searcher(dictionary, word))
             
-        for index , searcher in enumerate(self.workers):
+        for index , searcher in enumerate(self.searchers):
             searcher.update.connect(self.renew)
-            searcher.moveToThread(self.workerThreads[index])
-            self.workerThreads[index].start()
-            self.lineEdit.editingFinished.connect(searcher.run)
+            searcher.moveToThread(self.searchThreads[index])
+            self.searchThreads[index].start()
+
+            self.signal.connect(searcher.run)
         
         
-        
+        self.signal.emit("fire!!")
         print("edited")
                
         #self.multi_search(list(self.allDict.dictList.values()) , word, self.single_renew)
