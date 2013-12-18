@@ -26,25 +26,24 @@ class Searcher(QObject):
         try:
             answer=self.dictionary.search(self.word)
             self.update.emit(self.dictionary.name, answer)
-            print("success"+str(self))
         except AttributeError:
-            print("fail"+str(self))
+            pass
         
 
 
 class MyMainWindow(QMainWindow, Ui_MainWindow, QObject):
-    signal=pyqtSignal(str)
+    search_signal=pyqtSignal(str)
     
     def __init__(self, parent=None):
         super(MyMainWindow, self).__init__()
         self.setupUi(self)
         self.allDict=DictionaryList()
-        try:
-            self.allDict.load()
-        except FileNotFoundError:
-            print("previous file not found")
-            self.allDict.insert(WebsterDict())
-            self.allDict.insert(YahooDict())
+#         try:
+#             self.allDict.load()
+#         except FileNotFoundError:
+        print("previous file not found")
+        self.allDict.insert(WebsterDict())
+        self.allDict.insert(YahooDict())
             
         item=QListWidgetItem(self.listWidget)
         item_widget=Ui_Form()
@@ -52,19 +51,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow, QObject):
         self.listWidget.addItem(item)
         self.listWidget.setItemWidget(item, item_widget)
         self.previous_word=""
+        self.searchThreads=[QThread() for i in self.allDict.dictList]
         
-        self.searchThreads=[]
-        for dictionary in self.allDict.dictList:
-            self.searchThreads.append(QThread())
         
 
-        print("test")
-        
-        
-        # connect myaction_logic to myaction.toggled signal
-        #self.pushButton.toggled.connect(self.input_check)
-        
-        #self.lineEdit.toggled.connect(self.editing_finished)
   
     def editing_finished(self):
         word=self.lineEdit.text()
@@ -74,78 +64,26 @@ class MyMainWindow(QMainWindow, Ui_MainWindow, QObject):
             return
         else:
             self.previous_word=word
-        
+            self.search(word)
+
+    def search(self, word):
         self.searchers=[]
 
         for dictionary in self.allDict.dictList.values():
             self.searchers.append(Searcher(dictionary, word))
             
         for index , searcher in enumerate(self.searchers):
-            searcher.update.connect(self.renew)
+            searcher.update.connect(self.renew_gui)
             searcher.moveToThread(self.searchThreads[index])
             self.searchThreads[index].start()
 
-            self.signal.connect(searcher.run)
+            self.search_signal.connect(searcher.run)
         
-        
-        self.signal.emit("fire!!")
-        print("edited")
-               
-        #self.multi_search(list(self.allDict.dictList.values()) , word, self.single_renew)
+        self.search_signal.emit("fire!!")
     
-
-    
-    
-    def search(self, word):
-        pass
-    
-    def renew(self, text, text2):
-        #print(dictname)
-        print(text)
-        print(text2)
-        
-    
-    '''
-    def multi_search(self, dictlist, word, resultfunct):
-        
-        import PyQt5.QtCore as QtCore
-        class Searcher(QtCore.QThread):
-            def __init__(self, dictionary, f):
-                super(Searcher, self).__init__()
-                self.dictionary=dictionary
-                self.f=f
-                
-            def run( self ):
-                self.f(dictionary, word, resultfunct)
-                
-        
-        searcher_list=[]
-        for dictionary in dictlist:
-            searcher_list.append(Searcher(dictionary, self.))
-            
-        
-        for searcher in searcher_list:
-            searcher.start()
-            
-        for searcher in searcher_list:
-            searcher.wait()
-        
-    def single_search(self, dictionary, word, resultfunct):
-        print(dictionary.name)
-#         # search
-#         answer=dictionary.search(word)
-#         # renew        
-#         resultfunct(dictionary, answer)
-
-
-    def single_renew(self, dictionary, answer):
-        print(dictionary.name+" said")
-        #print(answer)
-        
-        
-    def setView(self, text):
-        self.webView.setHtml(text)
-    '''
+    def renew_gui(self, name, text):
+        print(name)
+        #print(text)
     
     
     
