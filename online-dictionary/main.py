@@ -58,7 +58,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow, QObject):
             self.searchThreads.append(QThread())
         
 
-        
+        print("test")
         
         
         # connect myaction_logic to myaction.toggled signal
