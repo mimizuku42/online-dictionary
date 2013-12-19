@@ -7,7 +7,7 @@ Created on 2013/12/12
 @author: dacapo
 '''
 import sys
-from Dictionaries.DictionaryElement import DictionaryList
+from Dictionaries.DictionaryElement import DictionaryList, Dictionary
 from Dictionaries.OnlineDictionaries import WebsterDict, YahooDict
 from PyQt5 import QtWebKitWidgets
 from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QListWidgetItem
@@ -16,20 +16,27 @@ from Ui.block import Ui_Form
 from PyQt5.QtCore import *
 
 class Searcher(QObject):
-    update=pyqtSignal(str, str)
-    
-    def __init__(self, dictionary, word):
+    gui_update_signal=pyqtSignal(str, str)
+    def __init__(self, dictionary):
         super(Searcher, self).__init__()
         self.dictionary=dictionary
-        self.word=word
-    def run(self):
-        try:
-            answer=self.dictionary.search(self.word)
-            self.update.emit(self.dictionary.name, answer)
-        except AttributeError:
-            pass
+    def search(self, word):
+        text=self.dictionary.search(word)
+        self.gui_update_signal.emit(self.dictionary.name, text)
+
         
 
+class SearchElement:
+    def __init__(self, dictionary, gui_update, search_signal):
+        self.thread=thread=QThread()
+        self.searcher=searcher=Searcher(dictionary)
+        
+        searcher.gui_update_signal.connect(gui_update)
+        search_signal.connect(searcher.search)
+        searcher.moveToThread(thread)
+        thread.start()
+        
+        
 
 class MyMainWindow(QMainWindow, Ui_MainWindow, QObject):
     search_signal=pyqtSignal(str)
@@ -37,25 +44,15 @@ class MyMainWindow(QMainWindow, Ui_MainWindow, QObject):
     def __init__(self, parent=None):
         super(MyMainWindow, self).__init__()
         self.setupUi(self)
-        self.allDict=DictionaryList()
-#         try:
-#             self.allDict.load()
-#         except FileNotFoundError:
-        print("previous file not found")
-        self.allDict.insert(WebsterDict())
-        self.allDict.insert(YahooDict())
-            
-        item=QListWidgetItem(self.listWidget)
-        item_widget=Ui_Form()
-        item.setSizeHint(item_widget.sizeHint())
-        self.listWidget.addItem(item)
-        self.listWidget.setItemWidget(item, item_widget)
         self.previous_word=""
-        self.searchThreads=[QThread() for i in self.allDict.dictList]
+            
+        dictList=[WebsterDict(), YahooDict()]
+        self.search_elements=dict()
         
-        
-
-  
+        for dictionary in dictList:
+            search_element = SearchElement(dictionary, self.gui_update, self.search_signal)
+            self.search_elements[dictionary.name] = search_element
+         
     def editing_finished(self):
         word=self.lineEdit.text()
         if word=="":
@@ -68,20 +65,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow, QObject):
 
     def search(self, word):
         self.searchers=[]
-
-        for dictionary in self.allDict.dictList.values():
-            self.searchers.append(Searcher(dictionary, word))
-            
-        for index , searcher in enumerate(self.searchers):
-            searcher.update.connect(self.renew_gui)
-            searcher.moveToThread(self.searchThreads[index])
-            self.searchThreads[index].start()
-
-            self.search_signal.connect(searcher.run)
-        
-        self.search_signal.emit("fire!!")
+        self.search_signal.emit(word)
     
-    def renew_gui(self, name, text):
+    def gui_update(self, name, text):
         print(name)
         #print(text)
     

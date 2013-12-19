@@ -49,7 +49,7 @@ class DictionaryList:
         tmp_dict = pickle.load(f)
         f.close()          
     
-        self.__dict__.update(tmp_dict) 
+        self.__dict__.gui_update_signal(tmp_dict) 
     
     def save(self):
         f = open(self.filename,'wb')
